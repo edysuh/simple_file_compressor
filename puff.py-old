@@ -1,0 +1,156 @@
+# Title:	puff.py
+# Author:	Ethan Suh
+# Date:		Tuesday, October 20, 2015 10:07:03 PM
+# Info:		HW1 for EECS 214
+
+from sys import *
+from bit_io import *
+from tree import *
+
+def get_arg():
+	if len(argv) != 3:
+		stderr.write('Usage: {} INFILE OUTFILE\n'.format(argv[0]))
+		exit(2)
+	
+	infile = argv[1]
+	outfile = argv[2]
+
+	return infile, outfile
+
+def recreate_tree(reader):
+	top_of_tree = Tree()
+
+	todo = []
+	todo.append(top_of_tree)
+	
+	while len(todo) > 0:
+		current_bit = reader.readbit()
+		print(current_bit)
+	
+		current_node = todo.pop()
+	
+		if current_bit == 0:
+			new_branch0 = Tree()
+			new_branch1 = Tree()
+			new_branch0.set_binary_code(0)
+			new_branch1.set_binary_code(1)
+			current_node.add_branch(new_branch0)
+			current_node.add_branch(new_branch1)
+			todo.append(current_node.branches[1])
+			todo.append(current_node.branches[0])
+			print(todo)
+		elif current_bit == 1:
+			current_node.set_data(reader.readbits(8))
+			print(current_node.data)
+			print("do leaves have branches?:", current_node.branches)
+			print(todo)
+	
+	return top_of_tree
+
+def set_binary(tree, leaf_val, leaf_bin, leaf_bin_count):
+
+	if not tree.branches:
+		print('LEAF:', 'data=', tree.data, 'weight=', tree.weight,'binarypath=',  tree.binary_path)
+		leaf_val.append(tree.data)
+		leaf_bin.append(int(tree.binary_path, 2))
+		leaf_bin_count.append(len(tree.binary_path))
+	else:
+		print('data=', tree.data, 'weight=', tree.weight,'binarypath=',  tree.binary_path)
+		tree.branches[0].set_binary_path(tree.binary_path)
+		tree.branches[1].set_binary_path(tree.binary_path)
+		set_binary(tree.branches[0], leaf_val, leaf_bin, leaf_bin_count)
+		set_binary(tree.branches[1], leaf_val, leaf_bin, leaf_bin_count)
+
+# while True:
+# 	current = reader.readbit()
+# 
+# 	if current == None:
+# 		break
+# 
+# 	print(current)
+
+def gen_puff_file(huffman_tree, reader, outfile):
+	writer = BitWriter(outfile)
+	
+	current_prefix_path = ''
+	current_prefix_code = ''
+	current_leaf_value = 0
+	current_node = huffman_tree
+
+	i = 0
+	# while True:
+	while i < 100:
+		current_bit = reader.readbit()
+		print(current_bit)
+	
+		if current_bit == None:
+			break
+	
+		if not current_node.branches:
+			writer.writebits(current_node.data, 8)
+			print('leaf_node', current_node.data, 'leaf_prefix_path', current_prefix_path)
+			current_node = huffman_tree
+		else:
+			current_node = current_node.branches[current_bit]
+			current_prefix_path = current_node.binary_path
+			print('current_node.data', current_node.data, 'current_prefix_path', current_prefix_path)
+		
+		i += 1
+	
+	writer.close()
+
+def main():
+	infile, outfile = get_arg()
+	reader = BitReader(infile)
+	huffman_tree = recreate_tree(reader)
+	
+	leaf_val = []
+	leaf_bin = []
+	leaf_bin_count = []
+
+	set_binary(huffman_tree, leaf_val, leaf_bin, leaf_bin_count)
+	
+	for i in range(len(leaf_val)):
+		print('leaf_val=', leaf_val[i], 'leaf_bin=', leaf_bin[i], 'count=', leaf_bin_count[i])
+
+	gen_puff_file(huffman_tree, reader, outfile)
+	
+	reader.close()
+
+main()
+
+# j = 0
+# while True:
+# while j < 100:
+# 	j += 1
+# 
+# 	current_bit = reader.readbit()
+# 
+# 	if current_bit == None:
+# 		break
+# 
+# 	current_prefix_path += str(current_bit)
+# 	print('current_bit:', current_bit, 'prefix_path:', current_prefix_path)
+# 
+# 	leaf_found = False
+# 
+# 	for i in range(0, len(leaf_bin)):
+# 		if int(current_prefix_path, 2) == leaf_bin[i]:
+# 			print('code:', current_prefix_code, 'path:', current_prefix_path)
+# 			current_prefix_code = current_prefix_path
+# 			current_leaf_value = leaf_val[i]
+# 
+# 	if not int(current_prefix_path, 2) in leaf_bin:
+# 		print('it is written: path:', current_prefix_path, 'code:', current_prefix_code)
+# 		writer.writebits(current_leaf_value, 8)
+# 		current_prefix_path = ''
+# 	 	current_prefix_code = ''
+# 	 	current_leaf_value = 0
+
+	# for i in range(0, len(leaf_bin)):
+	# 	if int(current_prefix_code, 2) == leaf_bin[i]:
+	# 		print("prefix_code = leaf_bin =", current_prefix_code, "leaf_val:", leaf_val[i])
+	# 		writer.writebits(leaf_val[i], 8)
+	# 		current_prefix_code = ''
+	# 		break
+
