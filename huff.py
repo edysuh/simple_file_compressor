@@ -50,10 +50,6 @@ def create_forest(byte_list, byte_freq):
 		new_tree.set_data(byte_list[i])
 		new_tree.set_weight(byte_freq[i])
 	
-	weightsum = 0
-	for i in range(0, len(forest)):
-		weightsum += forest[i].weight
-
 	i = j = 0
 	
 	while len(forest) > 1:
@@ -84,7 +80,6 @@ def create_forest(byte_list, byte_freq):
 
 def set_binary(tree, leaf_val, leaf_bin, leaf_bin_count):
 	if not tree.branches:
-		print('LEAF:', 'data=', tree.data, 'weight=', tree.weight,'binarypath=',  tree.binary_path)
 		leaf_val.append(tree.data)
 		leaf_bin.append(int(tree.binary_path, 2))
 		leaf_bin_count.append(len(tree.binary_path))
@@ -112,15 +107,11 @@ def gen_huff_file(filesize, huffman_tree, leaf_val, leaf_bin, leaf_bin_count, in
 			serialized += str(current_node.data)
 			writer.writebit(1)
 			writer.writebits(current_node.data, 8)
-			print(serialized)
-			print(todo)
 		else:
 			serialized += '0'
 			writer.writebit(0)
 			todo.append(current_node.branches[1])
 			todo.append(current_node.branches[0])
-			print(serialized)
-			print(todo)
 	
 	while True:
 		current_byte = reader2.readbits(8)
@@ -130,7 +121,6 @@ def gen_huff_file(filesize, huffman_tree, leaf_val, leaf_bin, leaf_bin_count, in
 	
 		for i in range(len(leaf_val)):
 			if current_byte == leaf_val[i]:
-				print('cb', current_byte, 'lb', leaf_bin[i])
 				writer.writebits(leaf_bin[i], leaf_bin_count[i])
 				break
 	
@@ -152,10 +142,6 @@ def main():
 
 	set_binary(huffman_tree, leaf_val, leaf_bin, leaf_bin_count)
 
-	for i in range(len(leaf_val)):
-		print('leaf_val=', leaf_val[i], 'leaf_bin=', leaf_bin[i], 'count=', leaf_bin_count[i])
-
 	gen_huff_file(filesize, huffman_tree, leaf_val, leaf_bin, leaf_bin_count, infile, outfile)
-	print(filesize)
 
 main()

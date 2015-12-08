@@ -31,7 +31,6 @@ def recreate_tree(infile):
 
 	while len(todo) > 0:
 		current_bit = reader.readbit()
-		print(current_bit)
 		filestart += 1
 	
 		current_node = todo.pop()
@@ -45,13 +44,9 @@ def recreate_tree(infile):
 			current_node.add_branch(new_branch1)
 			todo.append(current_node.branches[1])
 			todo.append(current_node.branches[0])
-			print(todo)
 		elif current_bit == 1:
 			current_node.set_data(reader.readbits(8))
 			filestart += 8
-			print(current_node.data)
-			print("do leaves have branches?:", current_node.branches)
-			print(todo)
 
 	reader.close()
 	
@@ -60,12 +55,10 @@ def recreate_tree(infile):
 def set_binary(tree, leaf_val, leaf_bin, leaf_bin_count):
 
 	if not tree.branches:
-		print('LEAF:', 'data=', tree.data, 'weight=', tree.weight,'binarypath=',  tree.binary_path)
 		leaf_val.append(tree.data)
 		leaf_bin.append(int(tree.binary_path, 2))
 		leaf_bin_count.append(len(tree.binary_path))
 	else:
-		print('data=', tree.data, 'weight=', tree.weight,'binarypath=',  tree.binary_path)
 		tree.branches[0].set_binary_path(tree.binary_path)
 		tree.branches[1].set_binary_path(tree.binary_path)
 		set_binary(tree.branches[0], leaf_val, leaf_bin, leaf_bin_count)
@@ -101,10 +94,6 @@ def main():
 
 	set_binary(huffman_tree, leaf_val, leaf_bin, leaf_bin_count)
 	
-	for i in range(len(leaf_val)):
-		print('leaf_val=', leaf_val[i], 'leaf_bin=', leaf_bin[i], 'count=', leaf_bin_count[i])
-
-	print(filestart, filesize)
 	gen_puff_file(huffman_tree, infile, filestart, filesize, outfile)
 
 main()

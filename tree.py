@@ -3,13 +3,6 @@
 # Date:		Tuesday, October 20, 2015 10:07:03 PM
 # Info:		HW1 for EECS 214
 
-# global leaf_val
-# leaf_val = []
-# global leaf_bin
-# leaf_bin = []
-# global leaf_bin_count
-# leaf_bin_count = []
-
 class Tree:
 	
 	def __init__(self):
