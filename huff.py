@@ -53,16 +53,7 @@ def create_forest(byte_list, byte_freq):
 	weightsum = 0
 	for i in range(0, len(forest)):
 		weightsum += forest[i].weight
-	# print("weightsum=", weightsum, i, forest[i].data, forest[i].weight)
 
-
-	# while byte_list != [None]:
-	# 	current_index = byte_freq.index(min(byte_freq))
-	# 	current_freq = byte_freq.pop(current_index)
-	# 	current_byte = byte_list[current_index]
-	# 	print("current = ",  current_index, current_freq, current_byte)
-	
-	
 	i = j = 0
 	
 	while len(forest) > 1:
@@ -73,15 +64,9 @@ def create_forest(byte_list, byte_freq):
 		new_tree.add_branch(forest[1])
 		new_tree.set_weight(forest[0].weight + forest[1].weight)
 	
-		# print('forestsize=', len(forest))
-		# for l in range(0, j):
-		# 	print(l, forest[l].binary_code, forest[l].data, forest[l].weight)
-	
 		j = 0
 	 
 		while j < len(forest):
-			# print('j=', j, 'binary=', forest[j].binary_code, 'data=', forest[j].data, 'new_tree.w=', new_tree.weight, 'forest.w=', forest[j].weight)
-	
 			if new_tree.weight < forest[j].weight:
 				forest.insert(j, new_tree)
 				forest.pop(0)
@@ -97,11 +82,6 @@ def create_forest(byte_list, byte_freq):
 
 	return huffman_tree
 
-# print(huffman_tree.branches[0].branches[0].binary_code)
-# print(huffman_tree.branches[0].branches[1].binary_code)
-# print(huffman_tree.branches[1].branches[0].binary_code)
-# print(huffman_tree.branches[1].branches[1].binary_code)
-
 def set_binary(tree, leaf_val, leaf_bin, leaf_bin_count):
 	if not tree.branches:
 		print('LEAF:', 'data=', tree.data, 'weight=', tree.weight,'binarypath=',  tree.binary_path)
@@ -109,13 +89,10 @@ def set_binary(tree, leaf_val, leaf_bin, leaf_bin_count):
 		leaf_bin.append(int(tree.binary_path, 2))
 		leaf_bin_count.append(len(tree.binary_path))
 	else:
-		# print('data=', tree.data, 'weight=', tree.weight,'binarypath=',  tree.binary_path)
 		tree.branches[0].set_binary_path(tree.binary_path)
 		tree.branches[1].set_binary_path(tree.binary_path)
 		set_binary(tree.branches[0], leaf_val, leaf_bin, leaf_bin_count)
 		set_binary(tree.branches[1], leaf_val, leaf_bin, leaf_bin_count)
-
-# print(huffman_tree.branches[1].branches[0].branches[0].branches[1].binary_path)
 
 def gen_huff_file(filesize, huffman_tree, leaf_val, leaf_bin, leaf_bin_count, infile, outfile):
 	reader2 = BitReader(infile)
